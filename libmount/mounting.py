@@ -1,4 +1,5 @@
 import ctypes
+from ctypes import *
 
 _libc = ctypes.cdll.LoadLibrary("libc.so.6")
 
@@ -52,6 +53,9 @@ class FLAGS:
 
 def mount(source, target, fstype, flags=0, data=None):
     flags = (flags & FLAGS.MS_MGC_MSK) | FLAGS.MS_MGC_VAL
+
+    get_errno_loc = _libc.__errno_location
+    get_errno_loc.restype = POINTER(c_int)
     
     result = _libc.mount(ctypes.c_char_p(source),
                          ctypes.c_char_p(target),
@@ -60,7 +64,8 @@ def mount(source, target, fstype, flags=0, data=None):
                          ctypes.c_char_p(data) if data is not None else 0)
     
     if result != 0:
-        raise OSError(ctypes.get_errno())
+        e = get_errno_loc()
+        raise OSError(e)
 
 def umount(target):
     result = _libc.umount(ctypes.c_char_p(target))
