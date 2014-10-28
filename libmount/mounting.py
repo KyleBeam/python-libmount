@@ -56,6 +56,7 @@ def mount(source, target, fstype, flags=0, data=None):
 
     get_errno_loc = _libc.__errno_location
     get_errno_loc.restype = POINTER(c_int)
+    #
     
     result = _libc.mount(ctypes.c_char_p(source),
                          ctypes.c_char_p(target),
